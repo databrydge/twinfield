@@ -1,6 +1,7 @@
 <?php
 namespace Pronamic\Twinfield\Factory;
 
+use app\packages\authentication\Twinfield\TwinfieldAuthentication;
 use \Pronamic\Twinfield\Secure\Config;
 use \Pronamic\Twinfield\Secure\Login;
 use \Pronamic\Twinfield\Secure\Service;
@@ -9,43 +10,47 @@ use \Pronamic\Twinfield\Response\Response;
 /**
  * All Factories used by all components extend this factory for common
  * shared methods that help normalize the usage between different components.\
- * 
+ *
  * @note this is a facade pattern. Named factory now, cant change it.
- * 
+ *
  * @author Leon Rowland <leon@rowland.nl>
  */
 abstract class ParentFactory
 {
     /**
      * Holds the secure config class
-     * 
+     *
      * @var \Pronamic\Twinfield\Secure\Config
      */
     private $config;
 
     /**
      * Holds the secure login class
-     * 
+     *
      * @var \Pronamic\Twinfield\Secure\Login
      */
     private $login;
 
     /**
      * Holds the response from a request.
-     * 
+     *
      * @var \Pronamic\Twinfield\Response\Response
      */
     private $response;
+    /** @var TwinfieldAuthentication */
+    private $authentication;
 
     /**
      * Pass in the Secure\Config class and it will automatically
      * make the Secure\Login for you.
-     * 
+     *
      * @access public
+     *
      * @param \Pronamic\Twinfield\Secure\Config $config
      */
     public function __construct(Config $config)
     {
+        $this->authentication = $config->getAuthentication();
         $this->setConfig($config);
         $this->makeLogin();
     }
@@ -53,9 +58,9 @@ abstract class ParentFactory
     /**
      * Sets the config class for usage in this factory
      * instance.
-     * 
+     *
      * Returns the instance back.
-     * 
+     *
      * @access public
      * @param \Pronamic\Twinfield\Secure\Config $config
      * @return \Pronamic\Twinfield\Factory\ParentFactory
@@ -77,7 +82,7 @@ abstract class ParentFactory
 
     /**
      * Returns this instances Secure\Config instance.
-     * 
+     *
      * @access public
      * @return \Pronamic\Twinfield\Secure\Config
      */
@@ -87,20 +92,20 @@ abstract class ParentFactory
     }
 
     /**
-     * Makes an instance of Secure\Login with the passed in 
+     * Makes an instance of Secure\Login with the passed in
      * Secure\Config instance.
-     * 
+     *
      * @access public
      * @return boolean
      */
     public function makeLogin()
     {
-        return $this->login = new Login($this->getConfig());
+        return $this->login = new \app\packages\api\twinfield\Login($this->getConfig(), $this->authentication);
     }
 
     /**
      * Returns this instances associated login instance.
-     * 
+     *
      * @access public
      * @return \Pronamic\Twinfield\Secure\Login
      */
@@ -110,9 +115,9 @@ abstract class ParentFactory
     }
 
     /**
-     * Returns an new instance of Service with 
+     * Returns an new instance of Service with
      * the already prepared Secure\Login.
-     * 
+     *
      * @access public
      * @return \Pronamic\Twinfield\Secure\Service
      */
@@ -124,7 +129,7 @@ abstract class ParentFactory
     /**
      * Should be called by the child classes. Will set the response
      * document from an attempted SOAP request.
-     * 
+     *
      * @access public
      * @param \Pronamic\Twinfield\Response\Response $response
      * @return \Pronamic\Twinfield\Factory\ParentFactory
@@ -137,7 +142,7 @@ abstract class ParentFactory
 
     /**
      * Returns the response that was last set.
-     * 
+     *
      * @access public
      * @return \Pronamic\Twinfield\Response\Response
      */
