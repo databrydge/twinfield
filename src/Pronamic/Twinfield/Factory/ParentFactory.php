@@ -100,7 +100,11 @@ abstract class ParentFactory
      */
     public function makeLogin()
     {
-        return $this->login = new \app\packages\api\twinfield\Login($this->getConfig(), $this->authentication);
+        if ($this->authentication) {
+            return $this->login = new \app\packages\api\twinfield\Login($this->getConfig(), $this->authentication);
+        }
+
+        return $this->login = new Login($this->getConfig());
     }
 
     /**
